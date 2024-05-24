@@ -31,20 +31,28 @@
 # 6-I want to leave this script in your hands because I do not have a SAS or iSCSI interface so I'm not the correct person to maintain this.
 # -----------------------------------------------
 # Importing necessary modules
-from importlib.resources import contents
-import json
-from mailbox import linesep
-import subprocess
 import datetime
-import socket
-import sys
-import platform
+import json
 import logging
-import re
 import os
+import re
+import socket
+import subprocess
+import sys
+
+
+SCRIPT_VERSION = "2.0"
+SCRIPT_VERSION_DESC = f"Spencer V{SCRIPT_VERSION} - BETA - 8/22/23"
 
 # Setup logging
-logging.basicConfig(filename='spencer.log', level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+def get_script_directory():
+    script_path = os.path.abspath(__file__)
+    script_dir = os.path.dirname(script_path)
+    return script_dir
+
+LOG_FILEPATH = os.path.join(get_script_directory(),'spencer.log')
+
+logging.basicConfig(filename=LOG_FILEPATH, level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logging.info('Spencer script started')
 
 hostname = socket.gethostname()
@@ -69,12 +77,12 @@ SUCCESS_SUBJECT = f"[SPENCER] [SUCCESS] All is Good! for {hostname}"
 PREV_ERROR_SUBJECT = f"[SPENCER] [PREVIOUS ERROR] No new Errors Found, Previous Errors Exist in Log for {hostname}"
 # Create a string for the previous error email subject, including the hostname
 
-ERRORS_FILE = "previous_errors.json"
+ERRORS_FILE = os.path.join(get_script_directory(),"previous_errors.json")
 # Set the filename for the previous errors file to "previous_errors.json"
 
 CONTENT_FILE = "/tmp/spencer_report.txt"
 # Set the filename for the content file to "/tmp/spencer_report.txt"
-print(f"{datetime.datetime.now()} - Spencer V2.0 - BETA - 8/22/23.")
+print(f"{datetime.datetime.now()} - {SCRIPT_VERSION_DESC}")
 print(f"{datetime.datetime.now()} - Written by NickF with Contributions from JoeSchmuck")
 print(f"{datetime.datetime.now()} - Spencer is checking log files for errors{' and pushing output to Multi-Report' if USE_WITH_MULTI_REPORT == 'multi_report' else ''}.")
 # -----------------------------------------------
