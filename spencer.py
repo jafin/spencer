@@ -39,6 +39,7 @@ import re
 import socket
 import subprocess
 import sys
+import configparser
 
 
 SCRIPT_VERSION = "2.0"
@@ -51,9 +52,15 @@ def get_script_directory():
     return script_dir
 
 LOG_FILEPATH = os.path.join(get_script_directory(),'spencer.log')
+CONFIG_FILEPATH = os.path.join(get_script_directory(),'spencer.ini')
 
 logging.basicConfig(filename=LOG_FILEPATH, level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 logging.info('Spencer script started')
+
+# Read the configuration file
+config = configparser.ConfigParser()
+logging.info(f"Reading configuration file {CONFIG_FILEPATH}")
+config.read(CONFIG_FILEPATH)
 
 hostname = socket.gethostname()
 # Get the hostname of the current machine and store it in the variable 'hostname'
@@ -64,7 +71,7 @@ USE_WITH_MULTI_REPORT = sys.argv[1] if len(sys.argv) > 1 else "False"
 # Check if a command line argument is provided, if yes, assign its value to 'USE_WITH_MULTI_REPORT',
 # otherwise assign "False" to 'USE_WITH_MULTI_REPORT'
 
-DEFAULT_RECIPIENT = "YourEmail Address.com"
+DEFAULT_RECIPIENT = config.get('Email', 'default_recipient')
 # Set the default email recipient address to "YourEmail Address.com"
 to_address = DEFAULT_RECIPIENT
 
@@ -467,6 +474,7 @@ def safe_send_email(content, to_address, subject):
     try:
         # Attempt to send the email
         send_email(content, to_address, subject)
+        logging.info(f"Email sent to {to_address}")
     except Exception as e:
         print(f"{datetime.datetime.now()} - Failed to send email due to an exception: {e}")
         logging.error(f"Error sending email: {e}")
